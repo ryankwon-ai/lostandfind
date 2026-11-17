@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>부흥고등학교 분실물 보관 센터 (생활안전부)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-icon">🏫</span>
+                <div>
+                    <h1>부흥고등학교</h1>
+                    <p>분실물 센터 · 2층 교무실(생활안전부)</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat">
+                    <span id="stat-found" class="stat-num">0</span>
+                    <span class="stat-label">현재 보관물품</span>
+                </div>
+                <div class="stat">
+                    <span id="stat-lost" class="stat-num">0</span>
+                    <span class="stat-label">분실 신고</span>
+                </div>
+                <div class="stat">
+                    <span id="stat-resolved" class="stat-num">0</span>
+                    <span class="stat-label">수령 완료</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 탭 네비게이션 -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="found-list" onclick="switchTab('found-list')">
+            <span class="tab-icon">📦</span> 현재 보관물품
+        </button>
+        <button class="tab-btn" data-tab="lost-list" onclick="switchTab('lost-list')">
+            <span class="tab-icon">📋</span> 분실 신고 목록
+        </button>
+        <button class="tab-btn" data-tab="report-found" onclick="switchTab('report-found')">
+            <span class="tab-icon">📸</span> 습득/보관 등록
+        </button>
+        <button class="tab-btn" data-tab="report-lost" onclick="switchTab('report-lost')">
+            <span class="tab-icon">🔍</span> 분실 신고하기
+        </button>
+    </nav>
+
+    <main class="main-content">
+
+        <!-- ============ 1. 현재 보관물품 목록 탭 (2층 생활안전부) ============ -->
+        <section id="tab-found-list" class="tab-content active">
+            <!-- 생활안전부 보관 안내 배너 -->
+            <div class="safety-banner">
+                <div class="safety-banner-icon">🏢</div>
+                <div class="safety-banner-content">
+                    <div class="safety-banner-title">2층 교무실(생활안전부) 분실물 보관소</div>
+                    <p class="safety-banner-desc">교내에서 습득된 모든 분실물은 <strong>2층 교무실(생활안전부)</strong>에서 일괄 보관합니다. 본인의 물건이 있다면 학생증을 지참하여 생활안전부로 방문해 주세요!</p>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>📦 현재 보관물품 목록 (생활안전부 보관 중)</h2>
+                <div class="filter-group">
+                    <input type="text" id="search-found" class="search-input" placeholder="물건 이름 또는 내용 검색..." oninput="renderFoundList()">
+                    <select id="filter-found-category" class="filter-select" onchange="renderFoundList()">
+                        <option value="all">전체 분류</option>
+                        <option value="전자기기">📱 전자기기</option>
+                        <option value="의류">🧥 의류/악세서리</option>
+                        <option value="학용품">📚 학용품</option>
+                        <option value="지갑/카드">💳 지갑/카드</option>
+                        <option value="열쇠">🔑 열쇠</option>
+                        <option value="음식/음료">🍱 음식/음료</option>
+                        <option value="기타">📌 기타</option>
+                    </select>
+                    <select id="filter-found-status" class="filter-select" onchange="renderFoundList()">
+                        <option value="all">전체 상태</option>
+                        <option value="waiting">🏢 보관 중 (수령 가능)</option>
+                        <option value="returned">✅ 주인 수령 완료</option>
+                    </select>
+                </div>
+            </div>
+            <div id="found-list" class="card-list">
+                <!-- 동적으로 생성 -->
+            </div>
+            <div id="found-empty" class="empty-state" style="display:none;">
+                <span class="empty-icon">📦</span>
+                <p>현재 등록된 보관물품이 없습니다.</p>
+                <button class="btn btn-primary" onclick="switchTab('report-found')">보관/습득물 등록하기</button>
+            </div>
+        </section>
+
+        <!-- ============ 2. 분실물 목록 탭 ============ -->
+        <section id="tab-lost-list" class="tab-content">
+            <div class="section-header">
+                <h2>📋 학생들이 찾는 분실물 신고 목록</h2>
+                <div class="filter-group">
+                    <input type="text" id="search-lost" class="search-input" placeholder="물건 이름 또는 내용 검색..." oninput="renderLostList()">
+                    <select id="filter-lost-category" class="filter-select" onchange="renderLostList()">
+                        <option value="all">전체 분류</option>
+                        <option value="전자기기">📱 전자기기</option>
+                        <option value="의류">🧥 의류/악세서리</option>
+                        <option value="학용품">📚 학용품</option>
+                        <option value="지갑/카드">💳 지갑/카드</option>
+                        <option value="열쇠">🔑 열쇠</option>
+                        <option value="음식/음료">🍱 음식/음료</option>
+                        <option value="기타">📌 기타</option>
+                    </select>
+                    <select id="filter-lost-status" class="filter-select" onchange="renderLostList()">
+                        <option value="all">전체 상태</option>
+                        <option value="searching">🔍 찾는 중</option>
+                        <option value="resolved">✅ 찾음 완료</option>
+                    </select>
+                </div>
+            </div>
+            <div id="lost-list" class="card-list">
+                <!-- 동적으로 생성 -->
+            </div>
+            <div id="lost-empty" class="empty-state" style="display:none;">
+                <span class="empty-icon">🔍</span>
+                <p>등록된 분실물이 없습니다.</p>
+                <button class="btn btn-primary" onclick="switchTab('report-lost')">분실 신고하기</button>
+            </div>
+        </section>
+
+        <!-- ============ 3. 습득물 및 보관물품 등록 탭 ============ -->
+        <section id="tab-report-found" class="tab-content">
+            <div class="form-container">
+                <h2>📸 습득물 및 보관물품 등록</h2>
+                <p class="form-desc">교내에서 습득하거나 현재 생활안전부에 보관 중인 물품을 등록해 주세요. <strong>등록 즉시 [현재 보관물품] 목록에 자동으로 공개</strong>됩니다.</p>
+                
+                <!-- 등록 주체 선택 토글 -->
+                <div class="type-toggle-container">
+                    <button type="button" id="toggle-student" class="toggle-btn active" onclick="setRegistrantType('student')">
+                        👨‍🎓 학생 습득물 인계
+                    </button>
+                    <button type="button" id="toggle-teacher" class="toggle-btn" onclick="setRegistrantType('teacher')">
+                        🏢 생활안전부 직접 보관 등록
+                    </button>
+                </div>
+
+                <form id="found-form" onsubmit="submitFoundReport(event)">
+                    <!-- 학생 정보 필드 -->
+                    <div id="student-info-row">
+                        <div class="form-group">
+                            <label for="found-reporter">습득 학생 이름 <span class="required">*</span></label>
+                            <input type="text" id="found-reporter" placeholder="예: 이지은" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="found-grade">학년 <span class="required">*</span></label>
+                                <select id="found-grade" required>
+                                    <option value="">선택</option>
+                                    <option value="1">1학년</option>
+                                    <option value="2">2학년</option>
+                                    <option value="3">3학년</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="found-class">반 <span class="required">*</span></label>
+                                <input type="number" id="found-class" placeholder="반" min="1" max="15" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 선생님/생활안전부 등록 시 정보 -->
+                    <div id="teacher-info-row" style="display:none;">
+                        <div class="form-group">
+                            <label for="found-staff">등록 담당자 / 부서</label>
+                            <input type="text" id="found-staff" value="생활안전부" readonly style="background:var(--gray-100); font-weight:600;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="found-item">물품 이름 <span class="required">*</span></label>
+                        <input type="text" id="found-item" placeholder="예: 파란색 텀블러, 에어팟 프로 본체, 검정 우산" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="found-category">분류 <span class="required">*</span></label>
+                        <select id="found-category" required>
+                            <option value="">선택</option>
+                            <option value="전자기기">📱 전자기기</option>
+                            <option value="의류">🧥 의류/악세서리</option>
+                            <option value="학용품">📚 학용품</option>
+                            <option value="지갑/카드">💳 지갑/카드</option>
+                            <option value="열쇠">🔑 열쇠</option>
+                            <option value="음식/음료">🍱 음식/음료</option>
+                            <option value="기타">📌 기타</option>
+                        </select>
+                    </div>
+
+                    <!-- 사진 업로드 -->
+                    <div class="form-group">
+                        <label>물품 사진 (카메라 촬영 / 사진 파일)</label>
+                        <div class="photo-upload" id="photo-upload-area">
+                            <input type="file" id="found-photo" accept="image/*" capture="environment" onchange="previewPhoto(event)" style="display:none;">
+                            <div id="photo-placeholder" class="photo-placeholder" onclick="document.getElementById('found-photo').click()">
+                                <span class="photo-icon">📷</span>
+                                <p>클릭하여 사진 촬영 또는 사진 업로드</p>
+                                <small>주인이 쉽게 알아볼 수 있도록 전체 사진을 찍어주세요.</small>
+                            </div>
+                            <div id="photo-preview-container" class="photo-preview-container" style="display:none;">
+                                <img id="photo-preview" class="photo-preview" alt="미리보기">
+                                <button type="button" class="btn-remove-photo" onclick="removePhoto()">✕ 사진 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="found-location">발견 장소 <span class="required">*</span></label>
+                        <select id="found-location" required>
+                            <option value="">선택</option>
+                            <option value="교실">교실</option>
+                            <option value="복도">복도</option>
+                            <option value="급식실">급식실</option>
+                            <option value="체육관">체육관</option>
+                            <option value="운동장">운동장</option>
+                            <option value="도서관">도서관</option>
+                            <option value="화장실">화장실</option>
+                            <option value="과학실">과학실</option>
+                            <option value="음악실">음악실</option>
+                            <option value="컴퓨터실">컴퓨터실</option>
+                            <option value="기타">기타 교내</option>
+                        </select>
+                        <input type="text" id="found-location-detail" placeholder="상세 위치 (예: 3층 동편 복도, 2-3 앞 등)" class="mt-sm">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="found-date">습득/보관 날짜 <span class="required">*</span></label>
+                            <input type="date" id="found-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="found-time">시간</label>
+                            <input type="time" id="found-time">
+                        </div>
+                    </div>
+
+                    <!-- 보관 장소: 2층 교무실(생활안전부) 일괄 통일 -->
+                    <div class="form-group keep-location-box">
+                        <label>🏢 보관 장소 <span class="badge-fixed">일괄 지정</span></label>
+                        <div class="keep-fixed-banner">
+                            <span class="keep-icon">📍</span>
+                            <span class="keep-text">2층 교무실(생활안전부)</span>
+                        </div>
+                        <input type="hidden" id="found-keep" value="2층 교무실(생활안전부)">
+                        <input type="text" id="found-keep-detail" placeholder="보관함 세부 위치 (선택: 예: 1번 바구니, 서랍장 B칸, 선반 등)" class="mt-sm">
+                        <small class="form-help-text">💡 부흥고 모든 습득물은 2층 교무실(생활안전부)로 인계되어 안전하게 보관됩니다.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="found-desc">상세 설명 / 특징</label>
+                        <textarea id="found-desc" rows="3" placeholder="색상, 크기, 스티커, 브랜드, 네임펜 표기 등 주인이 확인할 수 있는 특징을 적어주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="found-contact">신고자 연락 방법 (선택)</label>
+                        <input type="text" id="found-contact" placeholder="예: 카카오톡 ID, 전화번호, 또는 비워둠">
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-full">
+                        <span>📦</span> 현재 보관물품으로 등록하기
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ============ 4. 분실 신고 탭 ============ -->
+        <section id="tab-report-lost" class="tab-content">
+            <div class="form-container">
+                <h2>🔍 분실물 신고하기</h2>
+                <p class="form-desc">잃어버린 물건의 정보를 입력해 주세요. 생활안전부에 습득물이 들어오면 스마트 매칭으로 안내해 드립니다.</p>
+                
+                <form id="lost-form" onsubmit="submitLostReport(event)">
+                    <div class="form-group">
+                        <label for="lost-name">신고자 이름 <span class="required">*</span></label>
+                        <input type="text" id="lost-name" placeholder="예: 김민수" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="lost-grade">학년 <span class="required">*</span></label>
+                            <select id="lost-grade" required>
+                                <option value="">선택</option>
+                                <option value="1">1학년</option>
+                                <option value="2">2학년</option>
+                                <option value="3">3학년</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lost-class">반 <span class="required">*</span></label>
+                            <input type="number" id="lost-class" placeholder="반" min="1" max="15" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lost-item">분실물 이름 <span class="required">*</span></label>
+                        <input type="text" id="lost-item" placeholder="예: 검정색 우산, 에어팟 프로 2 본체" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lost-category">분류 <span class="required">*</span></label>
+                        <select id="lost-category" required>
+                            <option value="">선택</option>
+                            <option value="전자기기">📱 전자기기</option>
+                            <option value="의류">🧥 의류/악세서리</option>
+                            <option value="학용품">📚 학용품</option>
+                            <option value="지갑/카드">💳 지갑/카드</option>
+                            <option value="열쇠">🔑 열쇠</option>
+                            <option value="음식/음료">🍱 음식/음료</option>
+                            <option value="기타">📌 기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lost-location">분실 추정 장소 <span class="required">*</span></label>
+                        <select id="lost-location" required>
+                            <option value="">선택</option>
+                            <option value="교실">교실</option>
+                            <option value="복도">복도</option>
+                            <option value="급식실">급식실</option>
+                            <option value="체육관">체육관</option>
+                            <option value="운동장">운동장</option>
+                            <option value="도서관">도서관</option>
+                            <option value="화장실">화장실</option>
+                            <option value="과학실">과학실</option>
+                            <option value="음악실">음악실</option>
+                            <option value="컴퓨터실">컴퓨터실</option>
+                            <option value="기타">기타 교내</option>
+                        </select>
+                        <input type="text" id="lost-location-detail" placeholder="상세 위치 (예: 3층 복도, 2-5 교실 등)" class="mt-sm">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="lost-date">분실 추정 날짜 <span class="required">*</span></label>
+                            <input type="date" id="lost-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lost-time">시간</label>
+                            <input type="time" id="lost-time">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lost-desc">상세 설명</label>
+                        <textarea id="lost-desc" rows="3" placeholder="물건의 색상, 브랜드, 부착된 스티커나 키링 등 구체적인 특징을 적어주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lost-contact">연락 방법</label>
+                        <input type="text" id="lost-contact" placeholder="예: 카카오톡 ID, 전화번호">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>📝</span> 분실 신고 등록하기
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- 상세보기 모달 -->
+    <div id="detail-modal" class="modal" style="display:none;" onclick="closeModalOutside(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div id="modal-body">
+                <!-- 동적 콘텐츠 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 토스트 -->
+    <div id="toast" class="toast" style="display:none;"></div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <p>© 2026 부흥고등학교 분실물 보관 센터 | 2층 교무실(생활안전부) 운영</p>
+        <div class="footer-tools">
+            <button type="button" class="footer-btn" onclick="loadSampleData(true)">💡 예시 데이터 다시 불러오기</button>
+            <button type="button" class="footer-btn" onclick="clearAllData()">🗑️ 모든 데이터 초기화</button>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
